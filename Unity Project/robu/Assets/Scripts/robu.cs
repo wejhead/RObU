@@ -26,6 +26,8 @@ public class robu : MonoBehaviour {
     private double K = 0;
     private double tpi = 2 * Math.PI;
     private Rigidbody rb;
+    private float distanceFromBounds;
+    private Collider coll;
     #endregion
 
     void Awake()
@@ -54,15 +56,15 @@ public class robu : MonoBehaviour {
         rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
         rb.interpolation = RigidbodyInterpolation.Extrapolate;
 
+        coll = gameObject.GetComponent<Collider>();
         Application.runInBackground = true;
     }
 
     #region collisions
     void OnCollisionEnter(Collision c)
     {
-        //// CAUTION -- THIS IS REALLY LOUD -- CAUTION ////
-        //F = c.impulse.magnitude / Time.fixedDeltaTime;
-
+        distanceFromBounds = Vector3.Distance(c.contacts[0].point, coll.ClosestPointOnBounds(c.contacts[0].point));
+        Debug.Log(distanceFromBounds);
         F = ((c.relativeVelocity.x +
             c.relativeVelocity.y +
             c.relativeVelocity.z) / 3);
@@ -74,11 +76,6 @@ public class robu : MonoBehaviour {
         //figure out how to do sliding motion
         //F += c.impulse.magnitude;
         //K = t;
-    }
-
-    void OnCollisionExit(Collision c)
-    {
-
     }
     #endregion
 
@@ -95,9 +92,13 @@ public class robu : MonoBehaviour {
             //need to update to account for impact location
             for (int k = 0; k < numModes; k++)
             {
-                temp += (ampScale * modalModel.a[k]) *
+                // higher freqs are louder when our collision p is closer to an edge
+                float locationScale = Mathf.Clamp((float)modalModel.f[k] * (distanceFromBounds + 1), 0.5f, 2f);
+                
+                // damped oscillators
+                temp += (ampScale * modalModel.a[k] * locationScale) *
                     (Math.Exp(-modalModel.d[k] * dampingScale * tk)) *
-                    (Math.Sin(tpi* tk * modalModel.f[k] * frequencyScale)
+                    (Math.Cos(tpi* tk * modalModel.f[k] * frequencyScale)
                     * F);
             }
 
@@ -105,6 +106,5 @@ public class robu : MonoBehaviour {
             if (channels == 2) data[i + 1] = data[i];
             t += 1D/samplerate;
         }
-        //Debug.Log(t);   
     }
 }
