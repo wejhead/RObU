@@ -64,7 +64,6 @@ public class robu : MonoBehaviour {
     void OnCollisionEnter(Collision c)
     {
         distanceFromBounds = Vector3.Distance(c.contacts[0].point, coll.ClosestPointOnBounds(c.contacts[0].point));
-        Debug.Log(distanceFromBounds);
         F = ((c.relativeVelocity.x +
             c.relativeVelocity.y +
             c.relativeVelocity.z) / 3);
