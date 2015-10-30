@@ -1,1 +1,0 @@
-python script for parsing an AudioSculpt Partial Analysis into .ro format for RObU project.  
