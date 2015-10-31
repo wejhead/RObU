@@ -4,9 +4,14 @@
 
 import numpy
 
-
-def import_mesh(file_name):
-    return 
+def import_mesh(filename):
+    vertices = numpy.array([])
+    for line in open(filename, "r"):
+	vals = line.split()
+	if vals[0] == "v":
+	    v = map(float, vals[1:])
+	    vertices = numpy.append(vertices, v)
+    return vertices
 
 def eigen_vals(vector_space, n_fixed_points):
     return 
