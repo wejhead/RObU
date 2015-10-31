@@ -16,17 +16,23 @@ def import_mesh(filename):
 def eigen_vals(vector_space, n_fixed_points):
     return 
 
-def write_file(freqs, damps, amps):
+def write_file(filename, freqs, damps, amps):
+    fileout = open("../output/"+filename+".ro", "w")
+    fileout.write("nactive_freq:\n")
+    fileout.write(str(len(freqs))+"\n")
+    fileout.write("frequencies:\n")
     for freq in freqs:
-	continue
+	fileout.write(str(freq)+"\n")
     for damp in damps:
-	continue
+	fileout.write(str(damp)+"\n")
     for amp in amps:
-	continue
+	fileout.write(str(amp)+"\n")
+    fileout.write("END\n")
 
-def main(internal_friction):    
+def main():    
 
     S = import_mesh("test.obj")
+    internal_friction = 1
 
     eigen_vals = eigendecomp(mesh, num_points) 
 
@@ -34,6 +40,6 @@ def main(internal_friction):
     damps = gen_damps(eigen_vals, internal_friction)
     amps = gen_amps(eigen_vals)
 
-    write_file(freqs, damps, amps)
+    write_file("test", freqs, damps, amps)
 
 main()
