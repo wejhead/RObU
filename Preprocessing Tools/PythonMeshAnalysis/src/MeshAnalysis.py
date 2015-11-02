@@ -15,15 +15,16 @@ def import_mesh(filename):
     return vertices[1:]
 
 def get_eigen_vals(mass_matrix, stiffness_matrix):
-    return numpy.linalg.eig(vector_space) 
+    #return numpy.linalg.eig(vector_space) 
+    return 
 
-def get_freqs():
+def get_freqs(eigen_vals):
     return
 
-def get_damps():
+def get_damps(freqs, internal_friction):
     return
 
-def get_amps():
+def get_amps(freqs, eigen_vals):
     return
 
 def write_file(filename, freqs, damps, amps):
@@ -48,8 +49,8 @@ def main():
     eigen_vals = get_eigen_vals(m, k) 
 
     freqs = get_freqs(eigen_vals)
-    damps = get_damps(eigen_vals, internal_friction)
-    amps = get_amps(eigen_vals)
+    damps = get_damps(freqs, internal_friction)
+    amps = get_amps(freqs, eigen_vals)
 
     write_file("test", freqs, damps, amps)
-
+main()
