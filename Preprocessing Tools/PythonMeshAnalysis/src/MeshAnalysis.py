@@ -5,16 +5,26 @@
 import numpy
 
 def import_mesh(filename):
-    vertices = numpy.array([])
+    vertices = numpy.array([0, 0, 0], ndmin=2)
     for line in open(filename, "r"):
 	vals = line.split()
 	if vals[0] == "v":
 	    v = map(float, vals[1:])
-	    vertices = numpy.append(vertices, v)
-    return vertices
+	    v = numpy.array(v, ndmin=2)
+            vertices = numpy.concatenate((vertices, v), axis=0)
+    return vertices[1:]
 
-def eigen_vals(vector_space, n_fixed_points):
-    return 
+def get_eigen_vals(mass_matrix, stiffness_matrix):
+    return numpy.linalg.eig(vector_space) 
+
+def get_freqs():
+    return
+
+def get_damps():
+    return
+
+def get_amps():
+    return
 
 def write_file(filename, freqs, damps, amps):
     fileout = open("../output/"+filename+".ro", "w")
@@ -31,15 +41,15 @@ def write_file(filename, freqs, damps, amps):
 
 def main():    
 
-    S = import_mesh("test.obj")
-    internal_friction = 1
+    m = import_mesh("test.obj")     #mass matrix
+    k = numpy.ones_like(m)          #stiffness matrix
+    internal_friction = 1           #internal friction 
 
-    eigen_vals = eigendecomp(mesh, num_points) 
+    eigen_vals = get_eigen_vals(m, k) 
 
-    freqs = gen_freqs(eigen_vals)
-    damps = gen_damps(eigen_vals, internal_friction)
-    amps = gen_amps(eigen_vals)
+    freqs = get_freqs(eigen_vals)
+    damps = get_damps(eigen_vals, internal_friction)
+    amps = get_amps(eigen_vals)
 
     write_file("test", freqs, damps, amps)
 
-main()
