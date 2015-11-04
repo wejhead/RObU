@@ -18,7 +18,12 @@ def import_mesh(filename):
 def construct_mass_matrix(vertices):
     S = numpy.rot90(vertices)
     z, y, x = (S[0], S[1], S[2])
-    mm = numpy.array((len(z), len(x), len(y)))
+    mass_matrix = numpy.zeros((len(z), len(x), len(y)))
+    #print "mass matrix shape"+str(numpy.shape(mass_matrix))
+    #account for negative indicies, center in the matrix
+    z = z + (numpy.shape(mass_matrix)[0]/2)
+    x = x + (numpy.shape(mass_matrix)[1]/2)
+    y = y + (numpy.shape(mass_matrix)[2]/2)
     #iterate through each zplane
     for i in range(len(z)):
         xplane = numpy.array([])
@@ -33,12 +38,19 @@ def construct_mass_matrix(vertices):
         #define the plane using coo_matrix and tehe x and y coords obtained
         plane = coo_matrix((data, (xplane, yplane)), shape=(len(z), len(z))).todense()
         #set the mass matrix as this depth to the plane of mass created
-        mm[i] = plane        
-    return mm
+        #print numpy.shape(plane)
+        mass_matrix[i] = plane        
+    return mass_matrix
 
-def construct_stiffness_matrix(mass_matrix):
-    stiffenss_matrix = numpy.ones_like(mass_matrix)
+def construct_stiffness_matrix(mass_matrix, k):
+    stiffenss_matrix = mass_matrix 
     return stiffness_matrix
+
+def construct_matrices(vertices, mass, k):
+    mm = construct_mass_matrix(vertices)
+    sm = construct_stiffness_matrix(mm, k)
+    mm = mm * mass
+    return (mm, sm)
 
 def get_eigen_vals(mass_matrix, stiffness_matrix):
     return numpy.linalg.eigvals(mass_matrix)  
@@ -67,10 +79,11 @@ def write_file(filename, freqs, damps, amps):
 
 def main():    
     internal_friction = 1
+    k = 2000
+    mass = 1
     vertices = import_mesh("test.obj") 
-    m = construct_mass_matrix(vertices)
-    print m
-    k = construct_stiffness_matrix(mass_matrix) 
+    m, k = construct_matrices(vertices, mass, k)
+    print m 
     eigen_vals = get_eigen_vals(m, k) 
     print eigen_vals
     #freqs = get_freqs(eigen_vals)
