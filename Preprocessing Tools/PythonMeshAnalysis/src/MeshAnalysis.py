@@ -15,11 +15,14 @@ def import_mesh(filename):
     return vertices[1:]
 
 def get_eigen_vals(mass_matrix, stiffness_matrix):
-    #return numpy.linalg.eig(vector_space) 
-    return 
+    S = numpy.rot90(mass_matrix)
+    z, y, x = (S[0], S[1], S[2])
+    mx, my, mz = numpy.meshgrid(x, y, z)
+    km = numpy.ones_like(mx) 
+    return numpy.linalg.eigvals(mx)  
 
 def get_freqs(eigen_vals):
-    return
+    return 
 
 def get_damps(freqs, internal_friction):
     return
@@ -53,4 +56,5 @@ def main():
     amps = get_amps(freqs, eigen_vals)
 
     write_file("test", freqs, damps, amps)
-main()
+
+#main()
