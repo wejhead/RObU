@@ -3,6 +3,7 @@
 # Reads a .obj and returns a .ro
 
 import numpy
+from scipy.sparse import coo_matrix
 
 def import_mesh(filename):
     vertices = numpy.array([0, 0, 0], ndmin=2)
@@ -14,12 +15,33 @@ def import_mesh(filename):
             vertices = numpy.concatenate((vertices, v), axis=0)
     return vertices[1:]
 
-def get_eigen_vals(mass_matrix, stiffness_matrix):
-    S = numpy.rot90(mass_matrix)
+def construct_mass_matrix(vertices):
+    S = numpy.rot90(vertices)
     z, y, x = (S[0], S[1], S[2])
-    mx, my, mz = numpy.meshgrid(x, y, z)
-    km = numpy.ones_like(mx) 
-    return numpy.linalg.eigvals(mx)  
+    mm = numpy.array((len(z), len(x), len(y)))
+    #iterate through each zplane
+    for i in range(len(z)):
+        xplane = numpy.array([])
+        yplane = numpy.array([])
+        for item in z:
+            #if the item is on the current plane
+            if item == i:
+                #get the (x, y) coodinate for the mass on that plane
+                xplane = numpy.append(xplane, numpy.array([x[i]]))
+                yplane = numpy.append(yplane, numpy.array([y[i]]))
+        data = numpy.ones_like(xplane)
+        #define the plane using coo_matrix and tehe x and y coords obtained
+        plane = coo_matrix((data, (xplane, yplane)), shape=(len(z), len(z))).todense()
+        #set the mass matrix as this depth to the plane of mass created
+        mm[i] = plane        
+    return mm
+
+def construct_stiffness_matrix(mass_matrix):
+    stiffenss_matrix = numpy.ones_like(mass_matrix)
+    return stiffness_matrix
+
+def get_eigen_vals(mass_matrix, stiffness_matrix):
+    return numpy.linalg.eigvals(mass_matrix)  
 
 def get_freqs(eigen_vals):
     return 
@@ -44,17 +66,16 @@ def write_file(filename, freqs, damps, amps):
     fileout.write("END\n")
 
 def main():    
-
-    m = import_mesh("test.obj")     #mass matrix
-    k = numpy.ones_like(m)          #stiffness matrix
-    internal_friction = 1           #internal friction 
-
+    internal_friction = 1
+    vertices = import_mesh("test.obj") 
+    m = construct_mass_matrix(vertices)
+    print m
+    k = construct_stiffness_matrix(mass_matrix) 
     eigen_vals = get_eigen_vals(m, k) 
-
-    freqs = get_freqs(eigen_vals)
-    damps = get_damps(freqs, internal_friction)
-    amps = get_amps(freqs, eigen_vals)
-
-    write_file("test", freqs, damps, amps)
+    print eigen_vals
+    #freqs = get_freqs(eigen_vals)
+    #damps = get_damps(freqs, internal_friction)
+    #amps = get_amps(freqs, eigen_vals)
+    #write_file("test", freqs, damps, amps)
 
 #main()
