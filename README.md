@@ -15,4 +15,4 @@ Shape dependency and contanct-location dependency are still in the works, if you
 
 ## Usage
 
-Simply add robu.cs to any gameobject in your scene and assign it a .ro file to resynthesize from. 
+Simply add robu.cs to any gameobject in your scene and assign it a .ro file (see Models directory) to resynthesize from. 
