@@ -66,8 +66,12 @@
     <Reference Include="UnityEditor.iOS.Extensions.Xcode">
       <HintPath>Library\UnityAssemblies\UnityEditor.iOS.Extensions.Xcode.dll</HintPath>
     </Reference>
+    <Reference Include="Accord.Math">
+      <HintPath>Assets\Accord.Math.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\RObU\MeshProcessing.cs" />
     <Compile Include="Assets\RObU\ModalModel.cs" />
     <Compile Include="Assets\RObU\robu.cs" />
   </ItemGroup>

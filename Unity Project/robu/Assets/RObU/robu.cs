@@ -1,6 +1,13 @@
 ﻿using UnityEngine;
 using System;
 
+/// <summary>
+/// resyntheizes sound of rigidbodies based of the modal data (.ro) file given
+/// to do:
+/// shape dependency
+/// contact location dependency
+/// </summary>
+
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(AudioSource))]
 
@@ -12,6 +19,7 @@ public class robu : MonoBehaviour {
     public double amp = 0.1;
     public double frequencyScale = 1;
     public double dampingScale = 1;
+    public double externalDamping = 2;
     public double ampScale = 1;
     #endregion
 
@@ -37,7 +45,7 @@ public class robu : MonoBehaviour {
         //Debug.Log("sample rate: " + samplerate);
 
         //instantiate modal model
-        modalDataFileName = "./Assets/RObU/resonanceModels/"+modalDataFileName;
+        modalDataFileName = "./Assets/Scripts/resonanceModels/"+modalDataFileName;
         modalModel = new ModalModel(modalDataFileName);
         if(numModes > modalModel.activeFreqs)
         {
@@ -60,21 +68,38 @@ public class robu : MonoBehaviour {
         Application.runInBackground = true;
     }
 
-    #region collisions
+    #region collision_handling
     void OnCollisionEnter(Collision c)
     {
-        distanceFromBounds = Vector3.Distance(c.contacts[0].point, coll.ClosestPointOnBounds(c.contacts[0].point));
-        F = ((c.relativeVelocity.x +
-            c.relativeVelocity.y +
-            c.relativeVelocity.z) / 3);
-        K = t;
+        if(c.gameObject.layer != 8)
+        {
+            if (c.impulse.magnitude > 10f)
+            {
+                // cap F at 10 to account for unnatural glitches that may cause it to get super large
+                F = 10f;
+            }
+            else
+            {
+                F = c.impulse.magnitude;
+            }
+            K = t;
+        }  
     }
 
     void OnCollisionStay(Collision c)
     {
-        //figure out how to do sliding motion
-        //F += c.impulse.magnitude;
-        //K = t;
+        if (c.gameObject.layer != 8)
+        {
+            F = F / externalDamping;
+        }
+    }
+
+    void OnCollisionExit(Collision c)
+    {
+        if (c.gameObject.layer != 8)
+        {
+            K = t;
+        }
     }
     #endregion
 
@@ -91,16 +116,13 @@ public class robu : MonoBehaviour {
             //need to update to account for impact location
             for (int k = 0; k < numModes; k++)
             {
-                // higher freqs are louder when our collision p is closer to an edge
-                float locationScale = Mathf.Clamp((float)modalModel.f[k] * (distanceFromBounds + 1), 0.5f, 2f);
-                
                 // damped oscillators
-                temp += (ampScale * modalModel.a[k] * locationScale) *
+                temp += (ampScale * modalModel.a[k]) *
                     (Math.Exp(-modalModel.d[k] * dampingScale * tk)) *
                     (Math.Cos(tpi* tk * modalModel.f[k] * frequencyScale)
                     * F);
             }
-
+            //write to audio buffer
             data[i] = (float)temp * (float)amp;
             if (channels == 2) data[i + 1] = data[i];
             t += 1D/samplerate;

@@ -2,6 +2,10 @@
 using System;
 using System.IO;
 
+/// <summary>
+/// parses .ro file as output from Angelus into arrays of data for resynthesis
+/// </summary>
+
 public class ModalModel
 {
     public int activeFreqs;
