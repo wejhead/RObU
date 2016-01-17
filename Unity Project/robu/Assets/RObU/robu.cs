@@ -10,22 +10,22 @@ using System;
 
 [RequireComponent(typeof(Rigidbody))]
 [RequireComponent(typeof(AudioSource))]
+[RequireComponent(typeof(MeshProcessing))]
 
 public class robu : MonoBehaviour {
 
-    #region public 
+    #region public variables
+	//public bool ShapeDependent;
     public string modalDataFileName;
-    public int numModes = 20;
-    public double amp = 0.1;
+	public int numPartials = 20;
     public double frequencyScale = 1;
-    public double dampingScale = 1;
+    public double internalDamping = 1;
     public double externalDamping = 2;
     public double ampScale = 1;
     #endregion
 
-    #region private
+    #region private variables
     private ModalModel modalModel;
-    private int bufSize;
     private float[] buffer;
     private int samplerate;
     private double t = 0;
@@ -36,73 +36,83 @@ public class robu : MonoBehaviour {
     private Rigidbody rb;
     private float distanceFromBounds;
     private Collider coll;
+	private MeshFilter mf;
+	private Mesh mesh;
     #endregion
 
+	#region on awake
     void Awake()
     {
+		Application.runInBackground = true;
+
         //setup audio
         samplerate = AudioSettings.outputSampleRate;
         //Debug.Log("sample rate: " + samplerate);
 
+		//find mesh
+		mf = gameObject.GetComponent<MeshFilter> ();
+		mesh = mf.mesh;
+
+		//find rigidbody
+		rb = gameObject.GetComponent<Rigidbody>();
+		rb.collisionDetectionMode = CollisionDetectionMode.Continuous; // important thing to write about - what about these modes makes them preferable? 
+		rb.interpolation = RigidbodyInterpolation.Extrapolate; // see above
+
+		//find collider reference 
+		coll = gameObject.GetComponent<Collider>();
+
         //instantiate modal model
-        modalDataFileName = "./Assets/Scripts/resonanceModels/"+modalDataFileName;
-        modalModel = new ModalModel(modalDataFileName);
-        if(numModes > modalModel.activeFreqs)
+		//if (ShapeDependent) {
+		//	modalModel = new ModalModel (mesh);
+		//} else {
+			modalDataFileName = "./Assets/RObU/resonanceModels/" + modalDataFileName;
+			modalModel = new ModalModel (modalDataFileName);
+
+			//frequency driven by the transform scale
+			frequencyScale = 1/
+				((transform.localScale.x
+				  + transform.localScale.y 
+				  + transform.localScale.z)/3);
+		//}
+
+		//error handling
+		if(numPartials > modalModel.activeFreqs)
         {
             Debug.LogError(gameObject.name+": desired number of modes exceeds available, clamped at "+ modalModel.activeFreqs);
-            numModes = modalModel.activeFreqs;
+			numPartials = modalModel.activeFreqs;
         }
 
-        //frequency driven by the transform scale
-        frequencyScale = 1/
-            ((transform.localScale.x
-            + transform.localScale.y 
-            + transform.localScale.z)/3);
-
-        //find rigidbody
-        rb = gameObject.GetComponent<Rigidbody>();
-        rb.collisionDetectionMode = CollisionDetectionMode.Continuous;
-        rb.interpolation = RigidbodyInterpolation.Extrapolate;
-
-        coll = gameObject.GetComponent<Collider>();
-        Application.runInBackground = true;
     }
+	#endregion
 
-    #region collision_handling
+    #region collision handling
     void OnCollisionEnter(Collision c)
     {
-        if(c.gameObject.layer != 8)
+    	if (c.relativeVelocity.magnitude > 10f)
         {
-            if (c.impulse.magnitude > 10f)
-            {
-                // cap F at 10 to account for unnatural glitches that may cause it to get super large
-                F = 10f;
-            }
-            else
-            {
-                F = c.impulse.magnitude;
-            }
-            K = t;
-        }  
+        // cap F at 10 to account for unnatural glitches that may cause it to get super large
+        	F = 10f;
+        }
+        else
+        {
+			F = c.relativeVelocity.magnitude;
+        }
+        K = t;  
     }
 
-    void OnCollisionStay(Collision c)
+    void OnCollisionStay()
     {
-        if (c.gameObject.layer != 8)
-        {
-            F = F / externalDamping;
-        }
+
+    	F = F / externalDamping;
     }
 
-    void OnCollisionExit(Collision c)
+    void OnCollisionExit()
     {
-        if (c.gameObject.layer != 8)
-        {
-            K = t;
-        }
+        K = t;
     }
     #endregion
 
+	#region synthesis
     void OnAudioFilterRead(float[] data, int channels)
     {
         //write to the audio buffer
@@ -114,18 +124,19 @@ public class robu : MonoBehaviour {
             double tk = t - K;
 
             //need to update to account for impact location
-            for (int k = 0; k < numModes; k++)
+			for (int n = 0; n < numPartials; n++)
             {
                 // damped oscillators
-                temp += (ampScale * modalModel.a[k]) *
-                    (Math.Exp(-modalModel.d[k] * dampingScale * tk)) *
-                    (Math.Cos(tpi* tk * modalModel.f[k] * frequencyScale)
+                temp += ((float)ampScale * modalModel.a[n]) *
+                    (Math.Exp(-modalModel.d[n] * internalDamping * tk)) *
+                    (Math.Cos(tpi* tk * modalModel.f[n] * frequencyScale)
                     * F);
             }
             //write to audio buffer
-            data[i] = (float)temp * (float)amp;
+            data[i] = (float)temp;
             if (channels == 2) data[i + 1] = data[i];
             t += 1D/samplerate;
         }
     }
+	#endregion
 }

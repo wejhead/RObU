@@ -65,7 +65,6 @@ LightmapSettings:
     m_TextureCompression: 1
     m_FinalGather: 0
     m_FinalGatherRayCount: 1024
-    m_ReflectionCompression: 2
   m_LightmapSnapshot: {fileID: 0}
   m_RuntimeCPUUsage: 25
 --- !u!196 &4
@@ -85,6 +84,9 @@ NavMeshSettings:
     cellSize: .166666672
     manualCellSize: 0
   m_NavMeshData: {fileID: 0}
+--- !u!127 &5
+LevelGameManager:
+  m_ObjectHideFlags: 0
 --- !u!1 &403178221
 GameObject:
   m_ObjectHideFlags: 0
@@ -153,7 +155,6 @@ Camera:
   m_RenderingPath: -1
   m_TargetTexture: {fileID: 0}
   m_TargetDisplay: 0
-  m_TargetEye: 3
   m_HDR: 0
   m_OcclusionCulling: 1
   m_StereoConvergence: 10
@@ -333,14 +334,14 @@ MonoBehaviour:
   m_GameObject: {fileID: 1769512646}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 27166668009f59a4cba5109685b4cb8f, type: 3}
+  m_Script: {fileID: 11500000, guid: 08f3f56aa15ba814ea61aac2a8cbf91c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   modalDataFileName: bell1.ro
   numModes: 20
-  amp: .10000000000000001
   frequencyScale: 1
-  dampingScale: 6
+  internalDamping: 1
+  externalDamping: 2
   ampScale: 1
 --- !u!82 &1769512648
 AudioSource:
@@ -357,7 +358,6 @@ AudioSource:
   m_Pitch: 1
   Loop: 0
   Mute: 0
-  Spatialize: 0
   Priority: 128
   DopplerLevel: 1
   MinDistance: 1

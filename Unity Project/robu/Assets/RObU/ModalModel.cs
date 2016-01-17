@@ -16,6 +16,14 @@ public class ModalModel
     public double[] f;
     public double[] d;
     public double[] a;
+	private double[] analysisData;
+
+	public ModalModel(Mesh mesh){
+		//analysisData = new MeshProcessing (mesh);
+
+		//parse the analysis data
+	}
+
 
     public ModalModel(String file)
     {
@@ -117,7 +125,7 @@ public class ModalModel
                             }
                         }
                     }
-                    else if (line == "amplitudes[point][freq]:")
+                    else if (line == "amplitudes:")
                     {
                         for (int i = 0; i < activeFreqs; i++)
                         {

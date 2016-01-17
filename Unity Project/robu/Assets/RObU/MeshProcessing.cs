@@ -1,25 +1,24 @@
 ﻿using UnityEngine;
 using System;
 using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 
-
+/// <summary>
+/// Mesh processing.
+/// Takes a mesh and populates the Modal Model arrays 
+/// </summary>
+/// 
 public class MeshProcessing {
 
-    public double young;
+	// Aluminum default
+    public double young = 7.0e10;
     public double internalFriction;
-    public double density;
-    public double poisson;
+    public double density = 2700;
+    public double poisson = 0.35;
 
-	// Use this for initialization
-	void Start () {
-	
+	public MeshProcessing(Mesh mesh){
+		//FEM?
+
+
 	}
 	
-	// Update is called once per frame
-	void Update () {
-	
-	}
 }
