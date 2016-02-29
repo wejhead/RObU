@@ -1,5 +1,5 @@
 # RObU
-Resonant Objects in Unity 
+Physical modelling of Rigid-body sounds in Unity. 
 
 Implementation of real-time modal synthesis algorithms as 
 proposed by (http://www.cs.ubc.ca/~kvdoel/publications/thesis.pdf, among others)
