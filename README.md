@@ -1,9 +1,11 @@
 # RObU
+### In development. 
+
 Physical modelling of Rigid-body sounds in Unity. 
 
-Implementation of real-time modal synthesis algorithms as 
+The goal of this project was implementation of real-time modal synthesis algorithms as 
 proposed by (http://www.cs.ubc.ca/~kvdoel/publications/thesis.pdf, among others)
-in Unity. 
+in Unity. The project is currently on hold, working on a standalone implementation before moving t to Unity. This project as of now uses the included .ro files and performs additive synthesis based on the generated files. See "Preprocessing" on generating your own files. 
 
 ## Preprocessing
 
