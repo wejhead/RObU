@@ -1,5 +1,5 @@
 # RObU
-### In development. 
+### No longer in development, but (see this)[https://github.com/sjenson/modal_analysis] to see what this project became. 
 
 Physical modelling of Rigid-body sounds in Unity. 
 
